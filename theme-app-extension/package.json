@@ -1,0 +1,17 @@
+{
+  "name": "theme-app-extension",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "publish:development": "rimraf .env && copy .env.development .env && shopify extension push",
+    "publish:production": "rimraf .env && copy .env.production .env && shopify extension push"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "filemanager-webpack-plugin": "^7.0.0",
+    "rimraf": "^3.0.2"
+  }
+}

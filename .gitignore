@@ -1,0 +1,7 @@
+.vscode
+/node_modules
+/dist
+/assets
+/package-lock.json
+/theme-app-extension/assets
+/theme-app-extension/node_modules
