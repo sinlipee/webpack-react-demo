@@ -18,7 +18,6 @@ const fileEnv = dotenv.config({ path: finalPath });
 
 
 module.exports = {
-    entry: ['./src/scss/bundle.scss'],
     output: {
         path: path.join(__dirname, "/dist"), // the bundle output path
         filename: "bundle.js", // the name of the bundle
@@ -28,37 +27,22 @@ module.exports = {
     },
     module: {
         rules: [
-            {
-                test: /\.(css|sass|scss)$/,
-                use: [
-                    {
-                        loader: MiniCssExtractPlugin.loader,
-                    },
-                    {
-                        loader: "css-loader",
-                        options: {
-                            sourceMap: false,
-                        },
-                    },
-                    {
-                        loader: "resolve-url-loader",
-                    },
-                    {
-                        loader: "sass-loader",
-                        options: {
-                            sourceMap: false,
-                        },
-                    },
-                ],
+          {
+            test: /\.(js|jsx)$/, // .js and .jsx files
+            exclude: /node_modules/, // excluding the node_modules folder
+            use: {
+              loader: "babel-loader",
             },
-            {
-                test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+|scss)?$/,
-                use: [
-                    {
-                        loader: "file-loader",
-                    },
-                ],
-            },
+          },
+          {
+            test: /\.(sa|sc|c)ss$/, // styles files
+            use: ["style-loader", "css-loader", "sass-loader"],
+          },
+          {
+            test: /\.(png|woff|woff2|eot|ttf|svg)$/, // to import images and fonts
+            loader: "url-loader",
+            options: { limit: false },
+          },
         ],
     },
     plugins: [
@@ -66,7 +50,7 @@ module.exports = {
             template: "src/index.html", // to import index.html file inside index.js
         }),
         new MiniCssExtractPlugin({
-            filename: "bundle.css",
+            filename: "[name].css"
         }),
         new webpack.DefinePlugin({
             'process.env': JSON.stringify(fileEnv.parsed),
