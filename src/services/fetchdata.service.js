@@ -23,3 +23,25 @@ export const getStoreFrontData = async ({ myshopify_domain }) => {
         return null
     }
 }
+
+export const getProductDetail = async ({ product_url }) => {
+    try {
+        const options = {
+            method: 'GET',
+            header: new Headers({
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            })
+        }
+        const url = `${product_url}.json`;
+        const response = await fetch(url, options);
+        const { status = null, data = null } = await response.json() || {};
+        if (status === 200 && data) {
+            return data
+        }
+        return null
+    } catch (error) {
+        console.log('Error getProductDetail', error);
+        return null
+    }
+}

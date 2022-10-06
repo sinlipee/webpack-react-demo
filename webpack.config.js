@@ -24,6 +24,9 @@ module.exports = {
   },
   resolve: {
     extensions: [".js", ".scss"],
+    alias: {
+      '@src': path.resolve(__dirname, 'src'),
+    }
   },
   module: {
     rules: [
