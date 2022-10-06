@@ -11,9 +11,7 @@ const initializeStoreFront = async () => {
 
     if (shopifyInfo) {
         const frontData = await getStoreFrontData({ myshopify_domain: shopifyInfo?.shop })
-        console.log(22222, frontData);
         if (frontData && frontData?.shipping_bar) {
-            console.log(3333333);
             ShippingBar.initialize({ shipping_bar: frontData?.shipping_bar })
         }
     }
