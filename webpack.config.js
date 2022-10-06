@@ -15,27 +15,6 @@ const envPath = basePath + '.' + process.env.NODE_ENV;
 const finalPath = fs.existsSync(envPath) ? envPath : basePath;
 const fileEnv = dotenv.config({ path: finalPath });
 
-module.exports = {
-    entry: ["./src/scss/bundle.scss"],
-    module: {
-      rules: [
-        {
-          test: /\.js$/,
-          exclude: /node_modules/,
-          use: [],
-        },
-        {
-          test: /\.scss$/,
-          exclude: /node_modules/,
-          type: "asset/resource",
-          generator: {
-            filename: "bundle.css",
-          },
-          use: ["sass-loader"],
-        },
-      ],
-    },
-};
 
 
 module.exports = {
@@ -76,24 +55,56 @@ module.exports = {
         new webpack.DefinePlugin({
             'process.env': JSON.stringify(fileEnv.parsed),
         }),
-        new FileManagerPlugin({
-            events: {
-                onEnd: {
-                    copy: [
-                        {
-                            source: path.resolve(__dirname, "dist/*.{css,js}"),
-                            destination: path.resolve(
-                                __dirname,
-                                "theme-app-extension/assets/"
-                            ),
-                        },
-                    ],
-                },
-            },
-        }),
     ],
     devServer: {
         port: 3030, // you can change the port
     }
 };
 
+module.exports = {
+  entry: ["./src/scss/bundle.scss"],
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [],
+      },
+      {
+        test: /\.scss$/,
+        exclude: /node_modules/,
+        type: "asset/resource",
+        generator: {
+          filename: "bundle.css",
+        },
+        use: ["sass-loader"],
+      },
+    ],
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+        template: "src/index.html", // to import index.html file inside index.js
+    }),
+    new MiniCssExtractPlugin({
+        filename: "[name].css"
+    }),
+    new webpack.DefinePlugin({
+        'process.env': JSON.stringify(fileEnv.parsed),
+    }),
+    new FileManagerPlugin({
+        events: {
+            onEnd: {
+                copy: [
+                    {
+                        source: path.resolve(__dirname, "dist/*.{css,js}"),
+                        destination: path.resolve(
+                            __dirname,
+                            "theme-app-extension/assets/"
+                        ),
+                    },
+                ],
+            },
+        },
+    }),
+],
+};
