@@ -1,5 +1,6 @@
-import { isMobileDevice } from "@src/utils/helper";
+import { isMobileDevice, addStylesSheet } from "@src/utils/helper";
 import { getProductDetail } from '@src/services/fetchdata.service';
+import { fontsGoogle } from '@src/utils/fonts';
 
 /**
  *
@@ -130,7 +131,7 @@ export const isProductPageSetting = async ({ product_page }) => {
     try {
         let isPage = true
         const page = product_page?.page
-        if (page === '1') {
+        if (page === '2') {
             const product_url = window.location.href;
             const product = await getProductDetail({ product_url });
             return product;
@@ -138,5 +139,121 @@ export const isProductPageSetting = async ({ product_page }) => {
         return isPage;
     } catch (error) {
         console.log('Error isProductPageSetting', error);
+        return null
     }
+}
+
+export const renderBarToDom = ({ shipping_bar }, cart) => {
+    try {
+        console.log('shipping_bar >>>', shipping_bar);
+        const {
+            background_image,
+            background_color,
+            text_color,
+            amount_color,
+            opacity,
+            font_family,
+            font_size,
+            padding,
+        } = shipping_bar?.style || {}
+
+        const styleStr = `padding: ${padding}px 0; font-family: '${font_family}', serif; font-size: ${font_size}px; color: ${text_color};`
+
+        const html = `
+            <div class="smsinpee__bar_wrapper smsinpee__active">
+                <div class="smsinpee__bar_container">
+                    <div class="smsinpee__bar_block">
+                        <div class="smsinpee__bar_bgimg" style="background-image: ${background_image ? `url(${background_image})` : 'none'};"></div>
+                        <div class="smsinpee__bar_bgcolor" style="background-color: ${background_color};"></div>
+                        <div class="smsinpee__bar_content" style="${styleStr}">
+        ${renderContent({
+            style: {
+                text_color,
+                amount_color,
+                opacity,
+                font_family,
+                font_size
+            },
+            content: shipping_bar?.content,
+            currency: shipping_bar?.currency
+        }, cart)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
+        if (document.body) {
+            document.body.insertAdjacentHTML('beforeend', html)
+
+            addGoogleFont({ font_family })
+            addClassToBody()
+        }
+    } catch (error) {
+        console.log('Error addShippingBarToDom', error);
+    }
+};
+
+const renderContent = ({ style, content, currency }, cart) => {
+    try {
+        console.log(44444, cart);
+        const { item_count } = cart;
+        const { free_shipping_goal, initial_msg, progress_msg, goal_msg } = content
+
+        let message = goal_msg?.first;
+
+        // truong hop shipping fee = 0 thi show message mien phi
+        if (parseInt(free_shipping_goal) === 0) {
+            return initial_msg?.free
+        } else {
+            if (item_count) {
+
+            } else {
+                message = `${initial_msg?.first} ${formatMoney({ style, currency }, initial_msg?.middle)} ${initial_msg?.last}`
+            }
+        }
+
+        return message.trim()
+    } catch (error) {
+        console.log('Error renderContent', error);
+        hideShippingBar()
+    }
+}
+
+const formatMoney = ({ style, currency }, shippingFee) => {
+    try {
+        const { code, position, symbol } = currency;
+        const styleStr = `font-family: ${style?.font_family}; font-size: ${style?.font_size}px; color: ${style?.amount_color};`
+
+        let displayPrice = `<span style="${styleStr}">${symbol}${shippingFee}</span>`
+
+        if (position) {
+            displayPrice = `<span style="${styleStr}">${shippingFee}${symbol}</span>`
+        }
+        return displayPrice
+    } catch (error) {
+        hideShippingBar();
+    }
+}
+
+const addGoogleFont = ({ font_family }) => {
+    try {
+        console.log('font_family >>', font_family);
+        let fontFamily = font_family.toLowerCase();
+        fontFamily = fontFamily.replace(/ /g, '_');
+        console.log('fontFamily >>', fontFamily);
+        document.head.insertAdjacentHTML("beforeend", fontsGoogle[fontFamily]);
+    } catch (error) {
+        console.log('Error addGoogleFont', error);
+    }
+}
+
+const addClassToBody = () => {
+    const heigh = document.querySelector('.smsinpee__bar_wrapper').offsetHeight;
+    addStylesSheet(`.smsinpee__body { padding-top: ${heigh}px}`)
+    document.body.classList.add('smsinpee__body')
+}
+
+const hideShippingBar = () => {
+    document.querySelector('.smsinpee__bar_wrapper').classList.remove('smsinpee__active')
+    document.querySelector('body').classList.remove('smsinpee__body');
 }

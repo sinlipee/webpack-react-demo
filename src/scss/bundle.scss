@@ -1,4 +1,47 @@
-h1 {
-    color: rebeccapurple;
-    background: yellowgreen;
+.smsinpee {
+    &__bar_wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 99999;
+        display: none;
+    }
+    &__active {
+        display: block !important;
+    }
+    &__bar_container {
+
+    }
+    &__bar_block {
+        position: relative;
+        z-index: 99;
+    }
+    &__bar_bgimg {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        &:empty {
+            display: block !important;
+        }
+    }
+    &__bar_bgcolor {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 101;
+        &:empty {
+            display: block !important;
+        }
+    }
+    &__bar_content {
+        position: relative;
+        z-index: 110;
+        text-align: center;
+    }
 }

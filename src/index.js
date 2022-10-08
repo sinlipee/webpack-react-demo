@@ -1,5 +1,5 @@
 import { getShopifyInfo } from '@src/utils/shopify';
-import { getStoreFrontData } from '@src/services/fetchdata.service';
+import { getStoreFrontData, getCartShopify } from '@src/services/fetchdata.service';
 
 import * as ShippingBar from '@src/modules/ShippingBar';
 import * as SalesPop from '@src/modules/SalesPop';
@@ -12,7 +12,8 @@ const initializeStoreFront = async () => {
     if (shopifyInfo) {
         const frontData = await getStoreFrontData({ myshopify_domain: shopifyInfo?.shop })
         if (frontData && frontData?.shipping_bar) {
-            await ShippingBar.initialize({ shipping_bar: JSON.parse(frontData?.shipping_bar) })
+            const cart = await getCartShopify({ myshopify_domain: shopifyInfo?.shop })
+            await ShippingBar.initialize({ shipping_bar: JSON.parse(frontData?.shipping_bar) }, cart)
         }
     }
 }

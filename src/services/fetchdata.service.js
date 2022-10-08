@@ -45,3 +45,24 @@ export const getProductDetail = async ({ product_url }) => {
         return null
     }
 }
+
+export const getCartShopify = async ({ myshopify_domain }) => {
+    try {
+        const options = {
+            method: 'GET',
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            })
+        }
+        const url = `https://${myshopify_domain}/cart.js`
+
+        const response = await fetch(url, options);
+        const results = await response.json() || {};
+        return results;
+
+    } catch (error) {
+        console.log('Error getCartShopify', error);
+        return null
+    }
+}

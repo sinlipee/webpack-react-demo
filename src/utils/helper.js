@@ -14,3 +14,8 @@ export const isMobileDevice = () => {
     })(navigator.userAgent || navigator.vendor || window.opera);
     return isMobile;
 }
+
+export const addStylesSheet =(styles) => {
+    var stylesTmp = `<style type="text/css">${styles}</style>`;
+    document.head.insertAdjacentHTML("beforeend", stylesTmp);
+}
