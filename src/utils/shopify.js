@@ -32,6 +32,11 @@ const defaultShopify = {
     }
 }
 
+export const addScriptCurrencies = () => {
+    var script = `<script src="https://cdn.shopify.com/s/javascripts/currencies.js"></script>`;
+    document.head.insertAdjacentHTML("beforeend", script);
+}
+
 export const getShopifyInfo = () => {
     try {
         const shopifyInfo = window.Shopify || defaultShopify

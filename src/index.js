@@ -1,5 +1,5 @@
 import { getShopifyInfo } from '@src/utils/shopify';
-import { getStoreFrontData, getCartShopify } from '@src/services/fetchdata.service';
+import { getStoreFrontData, getCartShopify } from '@src/services/fetchData.service';
 
 import * as ShippingBar from '@src/modules/ShippingBar';
 import * as SalesPop from '@src/modules/SalesPop';
@@ -18,4 +18,4 @@ const initializeStoreFront = async () => {
     }
 }
 
-initializeStoreFront()
+initializeStoreFront();

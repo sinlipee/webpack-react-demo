@@ -1,5 +1,4 @@
 import { isMobileDevice, addStylesSheet } from "@src/utils/helper";
-import { getProductDetail } from '@src/services/fetchdata.service';
 import { fontsGoogle } from '@src/utils/fonts';
 
 /**
@@ -15,12 +14,12 @@ export const isDeviceSetting = ({ device }) => {
     }
 
     // device = 2 show mobile device
-    if (device === '2' && isMobile) {
+    if (device === '2' && !isMobile) {
         return true;
     }
 
     // device = 3 show desktop
-    if (device === '3' && !isMobile) {
+    if (device === '3' && isMobile) {
         return true;
     }
     return false;
@@ -127,13 +126,20 @@ export const isExcludePageSetting = ({ exclude_page }) => {
 
 }
 
-export const isProductPageSetting = async ({ product_page }) => {
+/**
+ * tinh nang product target shipping required
+ * Check trong cart co product nao co requires_shipping = true
+ * thi moi tinh so tien ship fee con lai va hien thi message progress
+ * @param {*} param0
+ * @returns
+ */
+export const isProductTargetSetting = async ({ product_page }) => {
     try {
         let isPage = true
         const page = product_page?.page
         if (page === '2') {
             const product_url = window.location.href;
-            const product = await getProductDetail({ product_url });
+
             return product;
         }
         return isPage;
@@ -143,6 +149,11 @@ export const isProductPageSetting = async ({ product_page }) => {
     }
 }
 
+/**
+ *
+ * @param {*} param0
+ * @param {*} cart current
+ */
 export const renderBarToDom = ({ shipping_bar }, cart) => {
     try {
         console.log('shipping_bar >>>', shipping_bar);
@@ -206,7 +217,7 @@ const renderContent = ({ style, content, currency }, cart) => {
             return initial_msg?.free
         } else {
             if (item_count) {
-
+                message = `${progress_msg?.first} ${formatMoney({ style, currency }, renderRemainMoney({ free_shipping_goal, currency }, cart))} ${progress_msg?.last}`
             } else {
                 message = `${initial_msg?.first} ${formatMoney({ style, currency }, initial_msg?.middle)} ${initial_msg?.last}`
             }
@@ -216,6 +227,20 @@ const renderContent = ({ style, content, currency }, cart) => {
     } catch (error) {
         console.log('Error renderContent', error);
         hideShippingBar()
+    }
+}
+
+const renderRemainMoney = ({ free_shipping_goal, currency }, cart) => {
+    try {
+        if (cart?.currency === currency?.code) {
+            const remain = parseFloat(free_shipping_goal) - (cart?.original_total_price / 100)
+            return remain.toFixed(2)
+        } else {
+
+        }
+
+    } catch (error) {
+        console.log('Error renderRemainMoney', error);
     }
 }
 

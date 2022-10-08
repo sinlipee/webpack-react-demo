@@ -2,7 +2,7 @@ import {
     isDeviceSetting,
     isIncludePageSetting,
     isExcludePageSetting,
-    isProductPageSetting,
+    isProductTargetSetting,
     renderBarToDom
 } from "@src/utils/shippingBar";
 
@@ -13,24 +13,19 @@ export const initialize = async ({ shipping_bar }, cart) => {
         let shippingBar = null;
         try {
             shipping_bar.forEach(async (item, index) => {
-                if (shippingBar) {
-                    res(shippingBar)
-                }
                 if (
                     isDeviceSetting({ device: item?.display?.device }) &&
                     isIncludePageSetting({ include_page: item?.display?.include_page }) &&
                     isExcludePageSetting({ include_page: item?.display?.include_page })
                 ) {
-                    const isProductPage = await isProductPageSetting({ product_page: item?.display?.product_page })
-                    if (isProductPage) {
-                        shippingBar = item;
-                    }
+                    res(item)
 
                     if (index === shipping_bar.length - 1) {
                         res(shippingBar)
                     }
                 }
             });
+
         } catch (error) {
             console.log('Error shippingBarPromise', error);
             res(shippingBar)
