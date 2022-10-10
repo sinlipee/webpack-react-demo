@@ -199,6 +199,9 @@ export const renderBarToDom = ({ shipping_bar }, cart) => {
 
             addGoogleFont({ font_family })
             addClassToBody()
+
+            // document visible
+            documentVisibilityChange()
         }
     } catch (error) {
         console.log('Error addShippingBarToDom', error);
@@ -302,18 +305,42 @@ const hideShippingBar = () => {
 }
 
 const changeCartEventListener = () => {
-    const submitForm = document.querySelectorAll('form[method="post"], form[action]')
-    submitForm.forEach(element => {
-        const submitButton = element.querySelectorAll('button')
-        submitButton.forEach(item => {
-            item.addEventListener('click', handleClickButton)
+    try {
+        const submitForm = document.querySelectorAll('form[method="post"], form[action]')
+        submitForm.forEach(element => {
+            const submitButton = element.querySelectorAll('button')
+            submitButton.forEach(item => {
+                item.addEventListener('click', handleClickButton)
+            })
+            const aTag = element.querySelectorAll('a')
+            aTag.forEach(item => {
+                const aHref = item.getAttribute('href')
+                if (aHref && aHref.includes('/cart/change')) {
+                    item.addEventListener('click', handleClickButton)
+                }
+            })
         })
-    })
+
+    } catch (error) {
+        console.log('Error changeCartEventListener', error);
+    }
 }
 
-const handleClickButton = async (e) => {
+const documentVisibilityChange = () => {
     try {
-        console.log('Click button');
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === 'visible') {
+                handleClickButton({ time_out: 0 })
+            }
+        });
+    } catch (error) {
+        console.log('Error documentVisibilityChange', error);
+    }
+}
+
+const handleClickButton = async ({ time_out = 1000 }) => {
+    try {
+        console.log('Click button || document visibility change');
         if (window.SpShopifyInfo) {
             const cartTimeout = setTimeout(async () => {
                 clearTimeout(cartTimeout)
@@ -337,14 +364,14 @@ const handleClickButton = async (e) => {
                         currency: window.SpShippingBarDetail?.currency
                     }, cart)
 
-                    if(message) {
+                    if (message) {
                         const contentEl = document.querySelector('.smsinpee__bar_content')
-                        if(contentEl) {
+                        if (contentEl) {
                             contentEl.innerHTML = message
                         }
                     }
                 }
-            }, 1000)
+            }, time_out)
 
         }
     } catch (error) {
