@@ -232,15 +232,24 @@ const renderContent = ({ style, content, currency }, cart) => {
 
 const renderRemainMoney = ({ free_shipping_goal, currency }, cart) => {
     try {
+        let remaining;
+        const original_total_price = cart?.original_total_price / 100
         if (cart?.currency === currency?.code) {
-            const remain = parseFloat(free_shipping_goal) - (cart?.original_total_price / 100)
-            return remain.toFixed(2)
+            remaining = parseFloat(free_shipping_goal) - original_total_price
         } else {
-
+            if (window.SpConversionRates) {
+                const rateBar = window.SpConversionRates[currency?.code]
+                const rateCart = window.SpConversionRates[cart?.currency]
+                if (rateBar && rateCart) {
+                    remaining = parseFloat(free_shipping_goal) - (original_total_price * rateBar / rateCart)
+                }
+            }
         }
+        return remaining.toFixed(2)
 
     } catch (error) {
         console.log('Error renderRemainMoney', error);
+        hideShippingBar()
     }
 }
 
@@ -262,10 +271,8 @@ const formatMoney = ({ style, currency }, shippingFee) => {
 
 const addGoogleFont = ({ font_family }) => {
     try {
-        console.log('font_family >>', font_family);
         let fontFamily = font_family.toLowerCase();
         fontFamily = fontFamily.replace(/ /g, '_');
-        console.log('fontFamily >>', fontFamily);
         document.head.insertAdjacentHTML("beforeend", fontsGoogle[fontFamily]);
     } catch (error) {
         console.log('Error addGoogleFont', error);

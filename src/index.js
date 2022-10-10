@@ -12,8 +12,9 @@ const initializeStoreFront = async () => {
     if (shopifyInfo) {
         const frontData = await getStoreFrontData({ myshopify_domain: shopifyInfo?.shop })
         if (frontData && frontData?.shipping_bar) {
-            const cart = await getCartShopify({ myshopify_domain: shopifyInfo?.shop })
-            await ShippingBar.initialize({ shipping_bar: JSON.parse(frontData?.shipping_bar) }, cart)
+            window.SpConversionRates = JSON.parse(frontData?.conversion_rates);
+            const cart = await getCartShopify({ myshopify_domain: shopifyInfo?.shop });
+            await ShippingBar.initialize({ shipping_bar: JSON.parse(frontData?.shipping_bar) }, cart);
         }
     }
 }
