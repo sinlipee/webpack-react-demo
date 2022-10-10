@@ -1,5 +1,6 @@
 import { isMobileDevice, addStylesSheet } from "@src/utils/helper";
 import { fontsGoogle } from '@src/utils/fonts';
+import { getCartShopify } from '@src/services/fetchData.service';
 
 /**
  *
@@ -157,12 +158,13 @@ export const isProductTargetSetting = async ({ product_page }) => {
 export const renderBarToDom = ({ shipping_bar }, cart) => {
     try {
         console.log('shipping_bar >>>', shipping_bar);
+        window.SpShippingBarDetail = shipping_bar;
+
         const {
             background_image,
             background_color,
             text_color,
             amount_color,
-            opacity,
             font_family,
             font_size,
             padding,
@@ -181,7 +183,6 @@ export const renderBarToDom = ({ shipping_bar }, cart) => {
             style: {
                 text_color,
                 amount_color,
-                opacity,
                 font_family,
                 font_size
             },
@@ -206,7 +207,6 @@ export const renderBarToDom = ({ shipping_bar }, cart) => {
 
 const renderContent = ({ style, content, currency }, cart) => {
     try {
-        console.log(44444, cart);
         const { item_count } = cart;
         const { free_shipping_goal, initial_msg, progress_msg, goal_msg } = content
 
@@ -228,6 +228,8 @@ const renderContent = ({ style, content, currency }, cart) => {
             }
         }
 
+        // sau khi render content thi addEvent
+        changeCartEventListener()
         return message.trim()
     } catch (error) {
         console.log('Error renderContent', error);
@@ -297,4 +299,64 @@ const addClassToBody = () => {
 const hideShippingBar = () => {
     document.querySelector('.smsinpee__bar_wrapper').classList.remove('smsinpee__active')
     document.querySelector('body').classList.remove('smsinpee__body');
+}
+
+const changeCartEventListener = () => {
+    const submitForm = document.querySelectorAll('form[method="post"], form[action]')
+    submitForm.forEach(element => {
+        const submitButton = element.querySelectorAll('button')
+        submitButton.forEach(item => {
+            item.addEventListener('click', handleClickButton)
+        })
+    })
+}
+
+const handleClickButton = async (e) => {
+    try {
+        console.log('Click button');
+        if (window.SpShopifyInfo) {
+            const cartTimeout = setTimeout(async () => {
+                clearTimeout(cartTimeout)
+                const cart = await getCartShopify({ myshopify_domain: window.SpShopifyInfo?.shop });
+                if (window.SpCart?.item_count !== cart?.item_count) {
+                    const {
+                        text_color,
+                        amount_color,
+                        font_family,
+                        font_size,
+                    } = window.SpShippingBarDetail?.style
+
+                    const message = renderContent({
+                        style: {
+                            text_color,
+                            amount_color,
+                            font_family,
+                            font_size
+                        },
+                        content: window.SpShippingBarDetail?.content,
+                        currency: window.SpShippingBarDetail?.currency
+                    }, cart)
+
+                    if(message) {
+                        const contentEl = document.querySelector('.smsinpee__bar_content')
+                        if(contentEl) {
+                            contentEl.innerHTML = message
+                        }
+                    }
+                }
+            }, 1000)
+
+        }
+    } catch (error) {
+        console.log('Error handleClickButton', error);
+    }
+}
+
+export const renderImageHidden = ({ url }) => {
+    try {
+        const html = `<img src="${url}" class="smsinpee__hidden"/>`
+        document.body.insertAdjacentHTML('beforeend', html)
+    } catch (error) {
+        console.log('Error renderImageHidden', error);
+    }
 }

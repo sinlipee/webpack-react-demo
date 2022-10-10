@@ -2,8 +2,8 @@ import {
     isDeviceSetting,
     isIncludePageSetting,
     isExcludePageSetting,
-    isProductTargetSetting,
-    renderBarToDom
+    renderBarToDom,
+    renderImageHidden
 } from "@src/utils/shippingBar";
 
 export const initialize = async ({ shipping_bar }, cart) => {
@@ -13,6 +13,9 @@ export const initialize = async ({ shipping_bar }, cart) => {
         let shippingBar = null;
         try {
             shipping_bar.forEach(async (item, index) => {
+                if (item?.style?.background_image) {
+                    renderImageHidden({ url: item?.style?.background_image })
+                }
                 if (
                     isDeviceSetting({ device: item?.display?.device }) &&
                     isIncludePageSetting({ include_page: item?.display?.include_page }) &&
