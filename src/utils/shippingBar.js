@@ -217,7 +217,12 @@ const renderContent = ({ style, content, currency }, cart) => {
             return initial_msg?.free
         } else {
             if (item_count) {
-                message = `${progress_msg?.first} ${formatMoney({ style, currency }, renderRemainMoney({ free_shipping_goal, currency }, cart))} ${progress_msg?.last}`
+
+                const remaining = renderRemainMoney({ free_shipping_goal, currency }, cart)
+                if (remaining) {
+                    message = `${progress_msg?.first} ${formatMoney({ style, currency }, remaining)} ${progress_msg?.last}`
+                }
+
             } else {
                 message = `${initial_msg?.first} ${formatMoney({ style, currency }, initial_msg?.middle)} ${initial_msg?.last}`
             }
@@ -245,8 +250,12 @@ const renderRemainMoney = ({ free_shipping_goal, currency }, cart) => {
                 }
             }
         }
-        return remaining.toFixed(2)
 
+        if (remaining && remaining > 0) {
+            return remaining.toFixed(2)
+        }
+
+        return null
     } catch (error) {
         console.log('Error renderRemainMoney', error);
         hideShippingBar()
