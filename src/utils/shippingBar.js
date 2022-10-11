@@ -204,6 +204,8 @@ export const renderBarToDom = ({ shipping_bar }, cart) => {
 
             // document visible
             documentVisibilityChange()
+
+            handleMutationObserverCart()
         }
     } catch (error) {
         console.log('Error addShippingBarToDom', error);
@@ -308,19 +310,20 @@ const hideShippingBar = () => {
 
 const changeCartEventListener = () => {
     try {
-        const submitForm = document.querySelectorAll('form[method="post"], form[action]')
+        const submitForm = document.querySelectorAll('form[method="post"]')
         submitForm.forEach(element => {
             const submitButton = element.querySelectorAll('button')
             submitButton.forEach(item => {
                 item.addEventListener('click', handleClickButton)
             })
-            const aTag = element.querySelectorAll('a')
-            aTag.forEach(item => {
-                const aHref = item.getAttribute('href')
-                if (aHref && aHref.includes('/cart/change')) {
-                    item.addEventListener('click', handleClickButton)
-                }
-            })
+
+            // const aTag = element.querySelectorAll('a')
+            // aTag.forEach(item => {
+            //     const aHref = item.getAttribute('href')
+            //     if (aHref && aHref.includes('/cart/change')) {
+            //         item.addEventListener('click', handleClickButton)
+            //     }
+            // })
         })
 
     } catch (error) {
@@ -340,7 +343,43 @@ const documentVisibilityChange = () => {
     }
 }
 
-const handleClickButton = async ({ time_out = 1000 }) => {
+const handleMutationObserverCart = () => {
+    try {
+        if (window.location.pathname === '/cart') {
+            // Select the node that will be observed for mutations
+            const targetNodeAll = document.querySelectorAll('form[action="/cart"]');
+            let oneTarget = false;
+            targetNodeAll.forEach((targetNode) => {
+                // Options for the observer (which mutations to observe)
+                const config = { attributes: true, childList: true, subtree: true };
+
+                // Callback function to execute when mutations are observed
+                const callback = async (mutationList, observer) => {
+                    console.log('A child node has been added or removed.', mutationList);
+                    console.log('observer', observer);
+                    if(mutationList.length === 1) {
+                        handleClickButton({ time_out: 0 })
+                    }
+                };
+
+                // Create an observer instance linked to the callback function
+                const observer = new MutationObserver(callback);
+
+                // Start observing the target node for configured mutations
+                observer.observe(targetNode, config);
+
+                // Later, you can stop observing
+                // observer.disconnect();
+            })
+
+        }
+
+    } catch (error) {
+        console.log('Error handleMutationObserverCart');
+    }
+}
+
+const handleClickButton = async ({ time_out = 3000 }) => {
     try {
         console.log('Click button || document visibility change');
         if (window.SpShopifyInfo) {
