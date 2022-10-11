@@ -167,10 +167,11 @@ export const renderBarToDom = ({ shipping_bar }, cart) => {
             amount_color,
             font_family,
             font_size,
+            font_weight,
             padding,
         } = shipping_bar?.style || {}
 
-        const styleStr = `padding: ${padding}px 0; font-family: '${font_family}', serif; font-size: ${font_size}px; color: ${text_color};`
+        const styleStr = `padding: ${padding}px 0; font-family: '${font_family}', serif; font-size: ${font_size}px; font-weight: ${font_weight}; color: ${text_color};`
 
         const html = `
             <div class="smsinpee__bar_wrapper smsinpee__active">
@@ -184,7 +185,8 @@ export const renderBarToDom = ({ shipping_bar }, cart) => {
                 text_color,
                 amount_color,
                 font_family,
-                font_size
+                font_size,
+                font_weight
             },
             content: shipping_bar?.content,
             currency: shipping_bar?.currency
@@ -270,7 +272,7 @@ const renderRemainMoney = ({ free_shipping_goal, currency }, cart) => {
 const formatMoney = ({ style, currency }, shippingFee) => {
     try {
         const { code, position, symbol } = currency;
-        const styleStr = `font-family: ${style?.font_family}; font-size: ${style?.font_size}px; color: ${style?.amount_color};`
+        const styleStr = `font-family: ${style?.font_family}; font-size: ${style?.font_size}px; font-weight: ${style?.font_weight}; color: ${style?.amount_color};`
 
         let displayPrice = `<span style="${styleStr}">${symbol}${shippingFee}</span>`
 
