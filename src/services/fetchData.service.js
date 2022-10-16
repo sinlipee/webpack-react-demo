@@ -2,7 +2,7 @@ const API_PATH = {
     STOREFRONT: '/api/storefront/salesmessage'
 }
 
-export const getStoreFrontData = async ({ myshopify_domain }) => {
+export const getStoreFrontData = async ({ myshopify_domain, view_demo }) => {
     try {
         const options = {
             method: 'GET',
@@ -11,7 +11,13 @@ export const getStoreFrontData = async ({ myshopify_domain }) => {
                 'Content-Type': 'application/json',
             })
         }
-        const url = `${process.env.APP_URL}${API_PATH?.STOREFRONT}?myshopify_domain=${myshopify_domain}`;
+        let view_demo_params = ''
+        if(view_demo) {
+            if(view_demo?.shipping_bar_demo) {
+                view_demo_params = `&shipping_bar_demo=${view_demo?.shipping_bar_demo}`
+            }
+        }
+        const url = `${process.env.APP_URL}${API_PATH?.STOREFRONT}?myshopify_domain=${myshopify_domain}${view_demo_params}`;
         const response = await fetch(url, options);
         const { status = null, data = null } = await response.json() || {};
         if (status === 200 && data) {
