@@ -64,6 +64,9 @@ module.exports = {
   },
   resolve: {
     extensions: [".js", ".scss"],
+    alias: {
+      '@src': path.resolve(__dirname, 'src'),
+    }
   },
   module: {
     rules: [
@@ -100,8 +103,5 @@ module.exports = {
         },
       },
     }),
-  ],
-  devServer: {
-    port: 3030, // you can change the port
-  }
+  ]
 };
