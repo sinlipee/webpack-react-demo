@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "publish:development": "rimraf .env && copy .env.development .env && shopify extension push",
+    "publish:staging": "rimraf .env && copy .env.staging .env && shopify extension push",
     "publish:production": "rimraf .env && copy .env.production .env && shopify extension push"
   },
   "keywords": [],

@@ -7,6 +7,7 @@
     "clear": "rimraf dist && rimraf theme-app-extension/assets/*",
     "serve": "cross-env NODE_ENV=development webpack serve --mode development",
     "dev": "cross-env NODE_ENV=development webpack watch --mode development",
+    "staging": "cross-env NODE_ENV=staging webpack --mode production --config webpack.prod.js",
     "build": "cross-env NODE_ENV=production webpack --mode production --config webpack.prod.js"
   },
   "keywords": [],
