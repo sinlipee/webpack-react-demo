@@ -8,7 +8,8 @@
     "serve": "cross-env NODE_ENV=development webpack serve --mode development",
     "dev": "cross-env NODE_ENV=development webpack watch --mode development",
     "staging": "cross-env NODE_ENV=staging webpack --mode production --config webpack.prod.js",
-    "build": "cross-env NODE_ENV=production webpack --mode production --config webpack.prod.js"
+    "build": "cross-env NODE_ENV=production webpack --mode production --config webpack.prod.js",
+    "build-test": "cross-env NODE_ENV=test webpack --mode production --config webpack.prod.js"
   },
   "keywords": [],
   "author": "",

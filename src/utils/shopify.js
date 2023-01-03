@@ -1,6 +1,6 @@
 
 const defaultShopify = {
-    "shop": "sinpee.myshopify.com",
+    "shop": "sinlipee-124.myshopify.com",
     "locale": "en",
     "currency": {
         "active": "USD",

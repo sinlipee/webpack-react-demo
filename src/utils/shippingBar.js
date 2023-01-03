@@ -157,21 +157,19 @@ export const isProductTargetSetting = async ({ product_page }) => {
  */
 export const renderBarToDom = ({ shipping_bar }, cart) => {
     try {
-        console.log('shipping_bar >>>', shipping_bar);
         window.SpShippingBarDetail = shipping_bar;
 
         const {
             background_image,
             background_color,
-            text_color,
-            amount_color,
             font_family,
-            font_size,
-            font_weight,
             padding,
         } = shipping_bar?.style || {}
 
-        const styleStr = `padding: ${padding}px 0; font-family: '${font_family}', serif; font-size: ${font_size}px; font-weight: ${font_weight}; color: ${text_color};`
+        // add google before render html shipping bar
+        addGoogleFont({ font_family })
+
+        const styleStr = `padding: ${padding}px 0;`
 
         const html = `
             <div class="smsinpee__bar_wrapper smsinpee__active">
@@ -181,13 +179,6 @@ export const renderBarToDom = ({ shipping_bar }, cart) => {
                         <div class="smsinpee__bar_bgcolor" style="background-color: ${background_color};"></div>
                         <div class="smsinpee__bar_content" style="${styleStr}">
         ${renderContent({
-            style: {
-                text_color,
-                amount_color,
-                font_family,
-                font_size,
-                font_weight
-            },
             content: shipping_bar?.content,
             currency: shipping_bar?.currency
         }, cart)}
@@ -199,7 +190,7 @@ export const renderBarToDom = ({ shipping_bar }, cart) => {
         if (document.body) {
             document.body.insertAdjacentHTML('beforeend', html)
 
-            addGoogleFont({ font_family })
+
             addClassToBody()
 
             // document visible
@@ -217,6 +208,7 @@ const renderContent = ({ style, content, currency }, cart) => {
         const { item_count } = cart;
         const { free_shipping_goal, initial_msg, progress_msg, goal_msg } = content
 
+        let moneyAmount = '';
         let message = goal_msg?.first;
 
         // truong hop shipping fee = 0 thi show message mien phi
@@ -227,13 +219,20 @@ const renderContent = ({ style, content, currency }, cart) => {
 
                 const remaining = renderRemainMoney({ free_shipping_goal, currency }, cart)
                 if (remaining) {
-                    message = `${progress_msg?.first} ${formatMoney({ style, currency }, remaining)} ${progress_msg?.last}`
+                    // message = `${progress_msg?.first} ${formatMoney({ style, currency }, remaining)} ${progress_msg?.last}`
+                    message = progress_msg?.first
+                    moneyAmount = formatMoney({ style, currency }, remaining)
                 }
 
             } else {
-                message = `${initial_msg?.first} ${formatMoney({ style, currency }, initial_msg?.middle)} ${initial_msg?.last}`
+                // message = `${initial_msg?.first} ${formatMoney({ style, currency }, initial_msg?.middle)} ${initial_msg?.last}`
+                message = initial_msg?.first
+                moneyAmount = formatMoney({ style, currency }, free_shipping_goal)
             }
         }
+
+        // replace code {{money}}
+        message = message.replace(/{{money}}/g, moneyAmount);
 
         // sau khi render content thi addEvent
         changeCartEventListener()
@@ -271,16 +270,16 @@ const renderRemainMoney = ({ free_shipping_goal, currency }, cart) => {
     }
 }
 
-const formatMoney = ({ style, currency }, shippingFee) => {
+const formatMoney = ({ currency }, shippingFee) => {
     try {
         const { code, position, symbol } = currency;
-        const styleStr = `font-family: ${style?.font_family}; font-size: ${style?.font_size}px; font-weight: ${style?.font_weight}; color: ${style?.amount_color};`
 
-        let displayPrice = `<span style="${styleStr}">${symbol}${shippingFee}</span>`
+        let displayPrice = `${symbol}${shippingFee}`
 
         if (position) {
-            displayPrice = `<span style="${styleStr}">${shippingFee}${symbol}</span>`
+            displayPrice = `${shippingFee}${symbol}`
         }
+
         return displayPrice
     } catch (error) {
         hideShippingBar();
@@ -289,9 +288,11 @@ const formatMoney = ({ style, currency }, shippingFee) => {
 
 const addGoogleFont = ({ font_family }) => {
     try {
-        let fontFamily = font_family.toLowerCase();
-        fontFamily = fontFamily.replace(/ /g, '_');
-        document.head.insertAdjacentHTML("beforeend", fontsGoogle[fontFamily]);
+        let fontsGoogleStr  = ''
+        font_family.forEach(item => {
+            fontsGoogleStr += fontsGoogle[item]
+        })
+        document.head.insertAdjacentHTML("beforeend", fontsGoogleStr);
     } catch (error) {
         console.log('Error addGoogleFont', error);
     }
@@ -357,7 +358,7 @@ const handleMutationObserverCart = () => {
                 const callback = async (mutationList, observer) => {
                     console.log('A child node has been added or removed.', mutationList);
                     console.log('observer', observer);
-                    if(mutationList.length === 1) {
+                    if (mutationList.length === 1) {
                         handleClickButton({ time_out: 0 })
                     }
                 };
@@ -387,20 +388,7 @@ const handleClickButton = async ({ time_out = 3000 }) => {
                 clearTimeout(cartTimeout)
                 const cart = await getCartShopify({ myshopify_domain: window.SpShopifyInfo?.shop });
                 if (window.SpCart?.item_count !== cart?.item_count) {
-                    const {
-                        text_color,
-                        amount_color,
-                        font_family,
-                        font_size,
-                    } = window.SpShippingBarDetail?.style
-
                     const message = renderContent({
-                        style: {
-                            text_color,
-                            amount_color,
-                            font_family,
-                            font_size
-                        },
                         content: window.SpShippingBarDetail?.content,
                         currency: window.SpShippingBarDetail?.currency
                     }, cart)
