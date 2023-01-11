@@ -1,6 +1,7 @@
 import { isMobileDevice, addStylesSheet } from "@src/utils/helper";
 import { fontsGoogle } from '@src/utils/fonts';
 import { getCartShopify } from '@src/services/fetchData.service';
+import { messageIcons } from '@src/utils/icons';
 
 /**
  *
@@ -210,29 +211,45 @@ const renderContent = ({ style, content, currency }, cart) => {
 
         let moneyAmount = '';
         let message = goal_msg?.first;
+        let icon = '';
+        let iconStyle = '';
 
         // truong hop shipping fee = 0 thi show message mien phi
         if (parseInt(free_shipping_goal) === 0) {
-            return initial_msg?.free
+            if (initial_msg?.icon?.status) {
+                iconStyle = renderIconStyle(initial_msg?.icon)
+                icon = getMessageIcon({ key: initial_msg?.icon?.key })
+            }
+            message = initial_msg?.free
         } else {
             if (item_count) {
 
                 const remaining = renderRemainMoney({ free_shipping_goal, currency }, cart)
                 if (remaining) {
                     // message = `${progress_msg?.first} ${formatMoney({ style, currency }, remaining)} ${progress_msg?.last}`
+                    if (progress_msg?.icon?.status) {
+                        iconStyle = renderIconStyle(progress_msg?.icon)
+                        icon = getMessageIcon({ key: progress_msg?.icon?.key })
+                    }
+
                     message = progress_msg?.first
                     moneyAmount = formatMoney({ style, currency }, remaining)
                 }
 
             } else {
                 // message = `${initial_msg?.first} ${formatMoney({ style, currency }, initial_msg?.middle)} ${initial_msg?.last}`
+                if (initial_msg?.icon?.status) {
+                    iconStyle = renderIconStyle(initial_msg?.icon)
+                    icon = getMessageIcon({ key: initial_msg?.icon?.key })
+                }
+
                 message = initial_msg?.first
                 moneyAmount = formatMoney({ style, currency }, free_shipping_goal)
             }
         }
 
         // replace code {{money}}
-        message = message.replace(/{{money}}/g, moneyAmount);
+        message = iconStyle + icon + message.replace(/{{money}}/g, moneyAmount);
 
         // sau khi render content thi addEvent
         changeCartEventListener()
@@ -270,6 +287,10 @@ const renderRemainMoney = ({ free_shipping_goal, currency }, cart) => {
     }
 }
 
+const renderIcon = ({ color, key, size }) => {
+    return `<style></style>`
+}
+
 const formatMoney = ({ currency }, shippingFee) => {
     try {
         const { code, position, symbol } = currency;
@@ -288,7 +309,7 @@ const formatMoney = ({ currency }, shippingFee) => {
 
 const addGoogleFont = ({ font_family }) => {
     try {
-        let fontsGoogleStr  = ''
+        let fontsGoogleStr = ''
         font_family.forEach(item => {
             fontsGoogleStr += fontsGoogle[item]
         })
@@ -406,6 +427,24 @@ const handleClickButton = async ({ time_out = 3000 }) => {
     } catch (error) {
         console.log('Error handleClickButton', error);
     }
+}
+
+const getMessageIcon = ({ key }) => {
+    let icon = '';
+    messageIcons.forEach(item => {
+        if (item?.key === key) {
+            icon = `<span id="${key}_icon_sinlip">${item?.icon}</span>`
+        }
+    })
+    return icon;
+}
+
+const renderIconStyle = ({ color, size, key }) => {
+    return `<style>
+                #${key}_icon_sinlip { display: flex; width: ${size}px; height: ${size}px; margin-right: 5px; }
+                #${key}_icon_sinlip svg { width: 100%; height: 100%; }
+                #${key}_icon_sinlip svg path {fill: ${color}}
+            </style>`
 }
 
 export const renderImageHidden = ({ url }) => {
